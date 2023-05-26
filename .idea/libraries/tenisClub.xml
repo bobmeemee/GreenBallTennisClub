@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="tenisClub">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/ClubDeTenisGreenBall/lib/tenisClub.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
