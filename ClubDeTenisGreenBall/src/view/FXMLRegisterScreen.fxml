@@ -45,7 +45,7 @@
             <Text strokeType="OUTSIDE" strokeWidth="0.0" text="CSC:" GridPane.columnIndex="2" GridPane.halignment="RIGHT" GridPane.rowIndex="6" />
             <TextField fx:id="cscField" GridPane.columnIndex="3" GridPane.rowIndex="6" />
             <Button fx:id="confirmButton" mnemonicParsing="false" text="Confirm" GridPane.columnIndex="1" GridPane.halignment="RIGHT" GridPane.rowIndex="7" />
-            <Button fx:id="cancelButton" mnemonicParsing="false" prefHeight="26.0" prefWidth="57.0" text="Cancel" GridPane.columnIndex="1" GridPane.halignment="LEFT" GridPane.rowIndex="7" />
+            <Button fx:id="cancelButton" mnemonicParsing="false" onAction="#handleCancelButtonAction" prefHeight="26.0" prefWidth="57.0" text="Cancel" GridPane.columnIndex="1" GridPane.halignment="LEFT" GridPane.rowIndex="7" />
             <PasswordField fx:id="confirmPasswordField" GridPane.columnIndex="1" GridPane.rowIndex="4" />
             <PasswordField fx:id="passwordField" GridPane.columnIndex="1" GridPane.rowIndex="3" />
             <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Confirm Password: *" GridPane.rowIndex="4" />

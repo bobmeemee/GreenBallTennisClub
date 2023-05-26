@@ -1,8 +1,10 @@
 package controller;
 
 import application.JavaFXMLApplication;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
@@ -116,9 +118,9 @@ public class RegisterController implements Initializable {
 
     }
     @FXML
-    private void handleCancelButtonAction() {
+    private void handleCancelButtonAction(ActionEvent event) throws IOException {
         // go to the welcome screen
-
+        JavaFXMLApplication.setRoot("welcome");
     }
 
     @FXML
