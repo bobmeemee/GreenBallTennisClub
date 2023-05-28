@@ -12,6 +12,9 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.text.Text;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -78,6 +81,7 @@ public class RegisterController implements Initializable {
                 .or(firstnameField.textProperty().isEmpty())
                 .or(lastnameField.textProperty().isEmpty()));
 
+
     }
 
     @FXML
@@ -124,14 +128,18 @@ public class RegisterController implements Initializable {
     }
 
     @FXML
-    private void handleChoosePictureButtonAction() {
+    private void handleChoosePictureButtonAction() throws FileNotFoundException {
         // choose a picture from the provided ones
+
+        
+
 
     }
 
     @FXML
     private void handleUploadPictureButtonAction() {
         // choose picture from the computer
+
     }
 
 

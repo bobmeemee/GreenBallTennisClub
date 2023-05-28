@@ -59,9 +59,13 @@ public class JavaFXMLApplication extends Application {
         root = loader.load();
         roots.put("userhome", root);
 
-        scene = new Scene(roots.get("welcome"));
+        // reservar pista screen
+        loader = new FXMLLoader(getClass().getResource("../view/FXMLReservarpista.fxml"));
+        root = loader.load();
+        roots.put("reservarpista", root);
+
+        scene = new Scene(roots.get("reservarpista"));
         stage.setScene(scene);
-        stage.setWidth(600);
 
         stage.setTitle("Welcome");
         stage.show();
