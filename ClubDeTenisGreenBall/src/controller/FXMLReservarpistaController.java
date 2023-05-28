@@ -139,14 +139,32 @@ public class FXMLReservarpistaController implements Initializable {
             try {
                 List<Booking> bookings = Club.getInstance().getCourtBookings(courtComboBox.getSelectionModel().getSelectedItem(), datePicker.getValue());
                 for (Booking booking : bookings) {
-                    int hour = booking.getBookingDate().getHour();
-                    ToggleButton toggleButton = (ToggleButton) datePicker.getScene().lookup("#toggle" + (hour + 9));
+                    int hour = booking.getFromTime().getHour();
+                    System.out.println(hour);
+                    ToggleButton toggleButton = (ToggleButton) datePicker.getScene().lookup("#toggle" + hour);
                     toggleButton.setDisable(true);
                 }
             } catch (ClubDAOException | IOException e) {
                 throw new RuntimeException(e);
             }
         });
+
+        // when the court is changed, check if the court is already booked and set the toggle buttons to disabled if the time is already booked
+        courtComboBox.valueProperty().addListener((observable, oldValue, newValue) -> {
+            try {
+                List<Booking> bookings = Club.getInstance().getCourtBookings(courtComboBox.getSelectionModel().getSelectedItem(), datePicker.getValue());
+                for (Booking booking : bookings) {
+                    int hour = booking.getFromTime().getHour();
+                    System.out.println(hour);
+                    ToggleButton toggleButton = (ToggleButton) datePicker.getScene().lookup("#toggle" + hour);
+                    toggleButton.setDisable(true);
+                }
+            } catch (ClubDAOException | IOException e) {
+                throw new RuntimeException(e);
+            }
+        });
+
+
 
         courtComboBox.valueProperty().addListener((observable, oldValue, newValue) -> {
             try {
@@ -193,7 +211,7 @@ public class FXMLReservarpistaController implements Initializable {
         }
 
         // set the table columns
-        bookingHourColumn.setCellValueFactory(booking -> new SimpleStringProperty(booking.getValue().getBookingDate().getHour() + ":00"));
+        bookingHourColumn.setCellValueFactory(booking -> new SimpleStringProperty(booking.getValue().getFromTime() + ""));
         bookingUserColumn.setCellValueFactory(booking -> new SimpleStringProperty(booking.getValue().getMember().getNickName()));
         // set the table items
         // check the current date and the selected court
@@ -254,9 +272,12 @@ public class FXMLReservarpistaController implements Initializable {
         }
 
 
+        // TODO: check if the selected time is not already booked
         // check if not two hours consecutevly booked
         LocalTime previousTime = null;
         LocalTime previousPreviousTime;
+
+
         for (LocalTime time : selectedTime) {
             previousPreviousTime = previousTime;
             previousTime = time;
@@ -282,6 +303,12 @@ public class FXMLReservarpistaController implements Initializable {
                     LocalTime bookingHour = LocalTime.of(time.getHour(), 0);
                     System.out.println("Booking hour: " + bookingHour);
                     Club.getInstance().registerBooking(bookingDate, bookedDate, time, isPaid, reservedCourt, member);
+
+                    // update the table
+                    List<Booking> bookings = Club.getInstance().getCourtBookings(courtComboBox.getSelectionModel().getSelectedItem(), datePicker.getValue());
+                    ObservableList<Booking> bookingList = FXCollections.observableArrayList(bookings);
+                    bookingInfoTable.setItems(bookingList);
+
                 } else {
                     System.out.println("CANCEL");
                 }
