@@ -5,10 +5,14 @@
  */
 package controller;
 
+import javafx.beans.property.SimpleStringProperty;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
+import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.util.converter.LocalDateStringConverter;
 import model.*;
 
@@ -79,6 +83,16 @@ public class FXMLReservarpistaController implements Initializable {
     private Button reserveButton;
 
     private Member member;
+
+
+    @FXML
+    private TableColumn<Booking, String> bookingHourColumn;
+
+    @FXML
+    private TableView<Booking> bookingInfoTable;
+
+    @FXML
+    private TableColumn<Booking, String> bookingUserColumn;
     
     @Override
     public void initialize(URL url, ResourceBundle rb){   
@@ -163,11 +177,46 @@ public class FXMLReservarpistaController implements Initializable {
                 toggle20.selectedProperty().not()).and(
                 toggle21.selectedProperty().not()));
 
+        // set the date unselectable if it is before today
+        datePicker.setDayCellFactory(picker -> new DateCell() {
+            public void updateItem(LocalDate date, boolean empty) {
+                super.updateItem(date, empty);
+                LocalDate today = LocalDate.now();
+                setDisable(empty || date.isBefore(today));
+            }
+        });
+
         try {
             testMember();
         } catch (ClubDAOException | IOException e) {
             throw new RuntimeException(e);
         }
+
+        // set the table columns
+        bookingHourColumn.setCellValueFactory(booking -> new SimpleStringProperty(booking.getValue().getBookingDate().getHour() + ":00"));
+        bookingUserColumn.setCellValueFactory(booking -> new SimpleStringProperty(booking.getValue().getMember().getNickName()));
+        // set the table items
+        // check the current date and the selected court
+        // if one of them is changed update the table
+        datePicker.valueProperty().addListener((observable, oldValue, newValue) -> {
+            try {
+                List<Booking> bookings = Club.getInstance().getCourtBookings(courtComboBox.getSelectionModel().getSelectedItem(), datePicker.getValue());
+                ObservableList<Booking> bookingList = FXCollections.observableArrayList(bookings);
+                bookingInfoTable.setItems(bookingList);
+            } catch (ClubDAOException | IOException e) {
+                throw new RuntimeException(e);
+            }
+        });
+
+        courtComboBox.valueProperty().addListener((observable, oldValue, newValue) -> {
+            try {
+                List<Booking> bookings = Club.getInstance().getCourtBookings(courtComboBox.getSelectionModel().getSelectedItem(), datePicker.getValue());
+                ObservableList<Booking> bookingList = FXCollections.observableArrayList(bookings);
+                bookingInfoTable.setItems(bookingList);
+            } catch (ClubDAOException | IOException e) {
+                throw new RuntimeException(e);
+            }
+        });
     }
 
 
