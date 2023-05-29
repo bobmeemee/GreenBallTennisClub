@@ -59,32 +59,18 @@ public class FXMLVerMisReservasController implements Initializable {
      */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
+        /*
         try {
             test();
         } catch (ClubDAOException | IOException e) {
             throw new RuntimeException(e);
         }
 
-        // the observable list is binded to the list view
+         */
+
+        // the observable list is bound to the list view
         listView.setItems(observableList);
 
-        // the listView listens to what object is selected in the tableView
-        tableView.getSelectionModel().selectedItemProperty().addListener(
-                (observable, oldValue, newValue) -> {
-                    if (newValue != null) {
-                        // the observable list is cleared
-                        observableList.clear();
-                        // the observable list is filled with the information of the booking
-                        observableList.addAll(
-                                "Member: " + newValue.getMember().getName() + " " + newValue.getMember().getSurname(),
-                                "Username: " + newValue.getMember().getNickName(),
-                                "Court: " + newValue.getCourt().toString(),
-                                "Reservation made for: " + newValue.getFromTime().toString() + " " + newValue.getMadeForDay().toString(),
-                                "Reservation made on: " + newValue.getBookingDate().toString()
-                        );
-                    }
-                }
-        );
 
         // retrieve the bookings of the member
         try {
@@ -92,8 +78,6 @@ public class FXMLVerMisReservasController implements Initializable {
 
             // fill the table view with the bookings
             tableView.getItems().addAll(bookings);
-
-
 
             timeColumn.setCellValueFactory(bookingsCellData -> new SimpleObjectProperty<>(bookingsCellData.getValue()));
             courtColumn.setCellValueFactory(courtsCellData -> new SimpleStringProperty(courtsCellData.getValue().getCourt().getName()));
@@ -109,7 +93,43 @@ public class FXMLVerMisReservasController implements Initializable {
         }
 
 
+        // the listView listens to what object is selected in the tableView
+        tableView.getSelectionModel().selectedItemProperty().addListener(
+                (observable, oldValue, newValue) -> {
+                    if (newValue != null) {
+                        // the observable list is cleared
+                        observableList.clear();
+                        // the date and time of the booking are retrieved
+                        LocalDate d = newValue.getMadeForDay();
+                        LocalTime t = newValue.getFromTime();
+                        String day = d.getDayOfWeek().toString().toLowerCase();
+                        String date = String.format("%02d/%02d", d.getDayOfMonth(), d.getMonthValue());
+                        String time = String.format("%02d:%02d", t.getHour(), t.getMinute());
 
+                        // retrieve the date the booking was made
+                        LocalDateTime bookingDate = newValue.getBookingDate();
+                        String bookingDateString = String.format("%02d/%02d/%04d", bookingDate.getDayOfMonth(), bookingDate.getMonthValue(), bookingDate.getYear());
+
+                        // the observable list is filled with the information of the booking
+                        observableList.addAll(
+                                "Miembro: " + newValue.getMember().getName() + " " + newValue.getMember().getSurname(),
+                                "Username: " + newValue.getMember().getNickName(),
+                                "Pista: " + newValue.getCourt().getName(),
+                                "Reserva hecha para: " + day + " " + date + " - " + time,
+                                "Reserva realizada el: " + bookingDateString
+                        );
+                    }
+                }
+        );
+
+        // sort the bookings by date
+        tableView.getSortOrder().add(timeColumn);
+
+        // only show the ten most recent bookings
+        tableView.setPrefHeight(25 * 10 + 26);
+
+        // disable the cancel reservation button if no booking is selected
+        cancelReservation.disableProperty().bind(tableView.getSelectionModel().selectedItemProperty().isNull());
     }
 
     // method to cancel a reservation
@@ -118,7 +138,7 @@ public class FXMLVerMisReservasController implements Initializable {
         // get the selected booking
         Booking booking = tableView.getSelectionModel().getSelectedItem();
         // if there is a booking selected and the booking is not made in 24h from now
-        if (booking != null && booking.getMadeForDay().isAfter(LocalDate.now().plusDays(1))) {
+        if (booking != null && booking.getMadeForDay().isAfter(LocalDate.now().plusDays(1)) ) {
             // cancel the booking
             try {
                 Club.getInstance().removeBooking(booking);
@@ -129,6 +149,13 @@ public class FXMLVerMisReservasController implements Initializable {
             tableView.getItems().remove(booking);
             // clear the observable list
             observableList.clear();
+        } else if (booking != null && booking.getMadeForDay().isBefore(LocalDate.now().plusDays(1))) {
+            // if the booking is made in 24h from now, show an alert
+            Alert alert = new Alert(Alert.AlertType.WARNING);
+            alert.setTitle("Warning");
+            alert.setHeaderText("No se puede cancelar la reserva");
+            alert.setContentText("No se puede cancelar la reserva porque se ha hecho en menos de 24h");
+            alert.showAndWait();
         }
     }
 
@@ -138,6 +165,7 @@ public class FXMLVerMisReservasController implements Initializable {
         this.member = member;
     }
 
+    // for testing purposes
     public void test() throws ClubDAOException, IOException {
         // clear the club
         Club.getInstance().setInitialData();
